@@ -1,0 +1,3273 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficboxd — Seu Diário de Fanfics do Wattpad</title>
+    <style>
+        /* ==================== VARIÁVEIS DE TEMA (ESCURO / CLARO) ==================== */
+        :root {
+            --bg-main: #F4F6F9;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #EEF2F6;
+            --bg-input: #F8FAFC;
+            --border-subtle: #DCE2EA;
+            --text-strong: #0F172A;
+            --text-light: #334155;
+            --text-muted: #64748B;
+            --header-bg: rgba(255, 255, 255, 0.94);
+            --green: #00B843;
+            --green-bright: #00E054;
+            --blue: #0EA5E9;
+            --blue-bright: #40BCF4;
+            --wattpad: #FF500A;
+            --spotify: #1DB954;
+            --danger: #EF4444;
+            --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
+        }
+
+        html.dark {
+            --bg-main: #14181C;
+            --bg-card: #1E242B;
+            --bg-card-hover: #262E37;
+            --bg-input: #14181C;
+            --border-subtle: #2C3440;
+            --text-strong: #FFFFFF;
+            --text-light: #D8E0E8;
+            --text-muted: #99AABB;
+            --header-bg: rgba(20, 24, 28, 0.94);
+            --green: #00E054;
+            --green-bright: #00E054;
+            --blue: #40BCF4;
+            --blue-bright: #40BCF4;
+            --wattpad: #FF500A;
+            --spotify: #1DB954;
+            --danger: #F87171;
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ==================== RESET E BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input, select, textarea {
+            font-family: inherit;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==================== CABEÇALHO ==================== */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background-color: var(--header-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            gap: 10px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .brand-dots {
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-dots span {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: -3px;
+        }
+
+        .dot-wattpad { background-color: var(--wattpad); }
+        .dot-green { background-color: var(--green-bright); }
+        .dot-blue { background-color: var(--blue-bright); }
+
+        .brand-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-strong);
+            margin-left: 4px;
+        }
+
+        .brand-title em {
+            font-style: normal;
+            color: var(--wattpad);
+        }
+
+        .nav-desktop {
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        @media (min-width: 820px) {
+            .nav-desktop {
+                display: flex;
+            }
+        }
+
+        .nav-btn {
+            padding: 8px 13px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-strong);
+            background-color: var(--bg-card-hover);
+        }
+
+        .nav-btn.active {
+            color: var(--text-strong);
+            background-color: var(--bg-card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .handle-pill-mini {
+            font-size: 0.7rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: var(--green);
+            background: rgba(0, 224, 84, 0.12);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 5px 10px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .user-chip:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .avatar-xs {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--wattpad), var(--blue-bright));
+            color: #14181C;
+            font-weight: 800;
+            font-size: 0.72rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar-xs img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-chip-handle {
+            display: none;
+            font-size: 0.75rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-weight: 600;
+            color: var(--text-strong);
+            max-width: 115px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 980px) {
+            .user-chip-handle {
+                display: inline;
+            }
+        }
+
+        .save-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+
+        @media (min-width: 640px) {
+            .save-badge {
+                display: inline-flex;
+            }
+        }
+
+        .save-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--green-bright);
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-strong);
+            background-color: var(--bg-card-hover);
+        }
+
+        .btn-primary-green {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--green-bright);
+            color: #14181C;
+            font-weight: 800;
+            font-size: 0.82rem;
+            padding: 8px 14px;
+            border-radius: 10px;
+            transition: transform 0.15s, filter 0.2s;
+        }
+
+        .btn-primary-green:hover {
+            filter: brightness(0.94);
+        }
+
+        .btn-primary-green:active {
+            transform: scale(0.97);
+        }
+
+        /* Navegação Mobile */
+        .nav-mobile {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 0;
+            border-top: 1px solid var(--border-subtle);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-mobile::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (min-width: 820px) {
+            .nav-mobile {
+                display: none;
+            }
+        }
+
+        .mob-nav-btn {
+            flex: 1;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .mob-nav-btn.active {
+            background-color: var(--bg-card);
+            color: var(--text-strong);
+        }
+
+        /* ==================== ÁREA PRINCIPAL ==================== */
+        .main-content {
+            max-width: 1120px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 16px 48px;
+        }
+
+        .section-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-strong);
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ==================== BARRA DE FILTROS DO CATÁLOGO ==================== */
+        .filter-bar {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-card);
+        }
+
+        @media (min-width: 860px) {
+            .filter-bar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+
+        .filter-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            background-color: var(--bg-input);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .filter-pill:hover {
+            color: var(--text-strong);
+        }
+
+        .filter-pill.active {
+            background-color: var(--wattpad);
+            border-color: var(--wattpad);
+            color: #FFFFFF;
+        }
+
+        .search-sort-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        @media (min-width: 860px) {
+            .search-box {
+                width: 230px;
+            }
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .input-control, .select-control, .textarea-control {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-strong);
+            font-size: 0.85rem;
+            padding: 9px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box .input-control {
+            padding-left: 34px;
+        }
+
+        .input-control:focus, .select-control:focus, .textarea-control:focus {
+            border-color: var(--blue);
+        }
+
+        .select-control {
+            width: auto;
+            min-width: 140px;
+        }
+
+        /* ==================== GRADE DE CAPAS 2:3 ==================== */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        @media (min-width: 600px) {
+            .catalog-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 860px) {
+            .catalog-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1060px) {
+            .catalog-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+        }
+
+        .poster-card {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .book-aspect {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: var(--bg-card);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .poster-card:hover .book-aspect {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4), inset 0 0 0 2px var(--green-bright);
+        }
+
+        .book-aspect img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .generated-cover {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #FFFFFF;
+        }
+
+        .grad-0 { background: linear-gradient(145deg, #FF500A 0%, #9E2A00 55%, #1A1C23 100%); }
+        .grad-1 { background: linear-gradient(145deg, #00B843 0%, #065F46 55%, #14181C 100%); }
+        .grad-2 { background: linear-gradient(145deg, #0EA5E9 0%, #1E3A8A 55%, #14181C 100%); }
+        .grad-3 { background: linear-gradient(145deg, #9333EA 0%, #4C1D95 55%, #14181C 100%); }
+        .grad-4 { background: linear-gradient(145deg, #E11D48 0%, #881337 55%, #14181C 100%); }
+        .grad-5 { background: linear-gradient(145deg, #D97706 0%, #78350F 55%, #14181C 100%); }
+
+        .cover-fandom {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            opacity: 0.85;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cover-title {
+            font-size: 0.92rem;
+            font-weight: 800;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+        }
+
+        .cover-author {
+            font-size: 0.68rem;
+            opacity: 0.85;
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
+            padding-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .poster-badge-tl {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 3px 7px;
+            border-radius: 6px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-lida { background-color: var(--green-bright); color: #14181C; }
+        .badge-lendo { background-color: var(--wattpad); color: #FFFFFF; }
+        .badge-default { background-color: rgba(15, 23, 42, 0.82); color: #FFFFFF; }
+
+        .poster-badges-tr {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .mini-badge-dark {
+            background-color: rgba(15, 23, 42, 0.78);
+            color: #FFFFFF;
+            padding: 4px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .poster-hover-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 12px;
+            color: #FFFFFF;
+        }
+
+        .poster-card:hover .poster-hover-overlay {
+            opacity: 1;
+        }
+
+        .poster-footer {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2px;
+        }
+
+        .stars-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            color: var(--green);
+        }
+
+        /* ==================== DIÁRIO & RESENHAS ==================== */
+        .diary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .diary-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-card);
+        }
+
+        @media (min-width: 640px) {
+            .diary-card {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        .diary-poster-wrap {
+            width: 96px;
+            flex-shrink: 0;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        @media (min-width: 640px) {
+            .diary-poster-wrap {
+                margin: 0;
+                width: 108px;
+            }
+        }
+
+        .diary-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .diary-meta-top {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .meta-pills {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .date-chip {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-strong);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .visibility-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .vis-public {
+            color: var(--green);
+            background-color: rgba(0, 224, 84, 0.12);
+            border: 1px solid rgba(0, 224, 84, 0.3);
+        }
+
+        .vis-private {
+            color: var(--text-muted);
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .spoiler-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background-color: rgba(255, 80, 10, 0.14);
+            border: 1px solid rgba(255, 80, 10, 0.4);
+            color: var(--wattpad);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .spoiler-blur {
+            filter: blur(6px);
+            user-select: none;
+            transition: filter 0.25s ease;
+        }
+
+        .spoiler-revealed {
+            filter: none;
+            user-select: auto;
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .tag-chip {
+            font-size: 0.72rem;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+
+        /* ==================== LISTAS ==================== */
+        .lists-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        @media (min-width: 768px) {
+            .lists-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .list-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 14px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .list-covers-preview {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        /* ==================== ESTATÍSTICAS ==================== */
+        .stats-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        @media (min-width: 900px) {
+            .stats-kpi-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .kpi-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .kpi-value {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--text-strong);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats-details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        @media (min-width: 860px) {
+            .stats-details-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            margin-bottom: 10px;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 10px;
+            background-color: var(--bg-input);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background-color: var(--green-bright);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        /* ==================== ABA USUÁRIO (ESTILO TWITTER / X) ==================== */
+        .profile-toolbar {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-card);
+        }
+
+        @media (min-width: 960px) {
+            .profile-toolbar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .toolbar-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-mode {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background-color: var(--bg-input);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s;
+        }
+
+        .btn-mode.active-wattpad {
+            background-color: var(--wattpad);
+            border-color: var(--wattpad);
+            color: #FFFFFF;
+        }
+
+        .btn-mode.active-blue {
+            background-color: var(--blue-bright);
+            border-color: var(--blue-bright);
+            color: #14181C;
+        }
+
+        .btn-ext-wattpad {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #FF500A;
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 0.78rem;
+            padding: 8px 13px;
+            border-radius: 12px;
+            transition: filter 0.2s, transform 0.15s;
+        }
+
+        .btn-ext-wattpad:hover { filter: brightness(0.92); }
+        .btn-ext-wattpad:active { transform: scale(0.97); }
+
+        .btn-ext-spotify {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #1DB954;
+            color: #14181C;
+            font-weight: 800;
+            font-size: 0.78rem;
+            padding: 8px 13px;
+            border-radius: 12px;
+            transition: filter 0.2s, transform 0.15s;
+        }
+
+        .btn-ext-spotify:hover { filter: brightness(0.93); }
+        .btn-ext-spotify:active { transform: scale(0.97); }
+
+        .btn-theme {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--bg-input);
+            color: var(--text-strong);
+            border: 1px solid var(--border-subtle);
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 8px 13px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-theme:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        /* Cartão de Perfil Twitter/X */
+        .twitter-profile-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+
+        .twitter-banner {
+            position: relative;
+            height: 155px;
+            width: 100%;
+            background: linear-gradient(120deg, #FF500A 0%, #262E37 50%, #40BCF4 100%);
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .twitter-banner {
+                height: 200px;
+            }
+        }
+
+        .twitter-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .banner-overlay-grad {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent 60%);
+            pointer-events: none;
+        }
+
+        .banner-change-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(15, 23, 42, 0.72);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .twitter-body {
+            padding: 0 20px 22px;
+        }
+
+        .twitter-avatar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: -48px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (min-width: 640px) {
+            .twitter-avatar-row {
+                margin-top: -56px;
+            }
+        }
+
+        .twitter-avatar-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+        }
+
+        @media (min-width: 640px) {
+            .twitter-avatar-wrap {
+                width: 112px;
+                height: 112px;
+            }
+        }
+
+        .twitter-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--bg-card);
+            background: linear-gradient(135deg, var(--wattpad), var(--blue-bright));
+            color: #14181C;
+            font-size: 2.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .twitter-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-cam-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--wattpad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .profile-action-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 8px;
+        }
+
+        .btn-pill-green {
+            background-color: var(--green-bright);
+            color: #14181C;
+            font-weight: 800;
+            font-size: 0.78rem;
+            padding: 8px 15px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-pill-outline {
+            background-color: var(--bg-input);
+            color: var(--text-strong);
+            border: 1px solid var(--border-subtle);
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 8px 15px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-pill-outline:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .profile-links-inline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* Formulário de Edição de Perfil */
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        @media (min-width: 680px) {
+            .form-grid-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        @media (min-width: 680px) {
+            .form-grid-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .upload-box {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .upload-btn-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-strong);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-small:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        /* Perfis sugeridos */
+        .suggested-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 680px) {
+            .suggested-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        .suggested-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            text-align: left;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .suggested-item.selected {
+            border-color: var(--blue);
+            background-color: rgba(64, 188, 244, 0.12);
+        }
+
+        /* ==================== MODAIS ==================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .modal-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+        }
+
+        .modal-box-sm {
+            max-width: 480px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .rating-box {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .star-picker {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .star-btn {
+            padding: 2px;
+            transition: transform 0.12s;
+        }
+
+        .star-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .fav-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            background-color: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fav-btn.active {
+            border-color: var(--wattpad);
+            background-color: rgba(255, 80, 10, 0.14);
+            color: var(--wattpad);
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 60;
+            background-color: var(--bg-card);
+            border: 1px solid var(--green);
+            color: var(--text-strong);
+            padding: 11px 16px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 44px 20px;
+            background-color: var(--bg-card);
+            border: 1px dashed var(--border-subtle);
+            border-radius: 16px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== CABEÇALHO ==================== -->
+    <header class="app-header">
+        <div class="container">
+            <div class="header-top">
+                <!-- Logo Ficboxd -->
+                <div class="brand" onclick="switchTab('catalog')">
+                    <div class="brand-dots">
+                        <span class="dot-wattpad"></span>
+                        <span class="dot-green"></span>
+                        <span class="dot-blue"></span>
+                    </div>
+                    <span class="brand-title">Fic<em>boxd</em></span>
+                </div>
+
+                <!-- Navegação Desktop -->
+                <nav class="nav-desktop">
+                    <button type="button" onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn active">Catálogo</button>
+                    <button type="button" onclick="switchTab('diary')" id="nav-diary" class="nav-btn">Diário & Resenhas</button>
+                    <button type="button" onclick="switchTab('lists')" id="nav-lists" class="nav-btn">Listas</button>
+                    <button type="button" onclick="switchTab('stats')" id="nav-stats" class="nav-btn">Estatísticas</button>
+                    <button type="button" onclick="switchTab('profile')" id="nav-profile" class="nav-btn">
+                        <span>Usuário</span>
+                        <span id="nav-handle-badge" class="handle-pill-mini">@giovanna.reads</span>
+                    </button>
+                </nav>
+
+                <!-- Ações Direita -->
+                <div class="header-actions">
+                    <button type="button" onclick="switchTab('profile')" class="user-chip" title="Abrir Aba de Usuário">
+                        <div id="header-avatar" class="avatar-xs">G</div>
+                        <span id="header-handle" class="user-chip-handle">@giovanna.reads</span>
+                    </button>
+
+                    <div class="save-badge" title="Suas alterações ficam salvas automaticamente neste dispositivo">
+                        <span id="save-dot" class="save-dot"></span>
+                        <span id="save-text">Salvo no dispositivo</span>
+                    </div>
+
+                    <button type="button" onclick="openBackupModal()" class="icon-btn" title="Backup & Restaurar JSON">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+                    </button>
+
+                    <button type="button" onclick="openFicModal()" class="btn-primary-green">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Registrar Fic</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navegação Mobile -->
+            <nav class="nav-mobile">
+                <button type="button" onclick="switchTab('catalog')" id="mob-nav-catalog" class="mob-nav-btn active">Catálogo</button>
+                <button type="button" onclick="switchTab('diary')" id="mob-nav-diary" class="mob-nav-btn">Diário</button>
+                <button type="button" onclick="switchTab('lists')" id="mob-nav-lists" class="mob-nav-btn">Listas</button>
+                <button type="button" onclick="switchTab('stats')" id="mob-nav-stats" class="mob-nav-btn">Status</button>
+                <button type="button" onclick="switchTab('profile')" id="mob-nav-profile" class="mob-nav-btn">Usuário</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==================== CONTEÚDO PRINCIPAL ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== ABA 1: CATÁLOGO ==================== -->
+        <section id="tab-catalog" class="tab-section section-stack">
+            <div class="filter-bar">
+                <div class="filter-pills">
+                    <button type="button" onclick="setStatusFilter('ALL')" data-filter="ALL" class="filter-pill active">Todas (<span id="count-all">0</span>)</button>
+                    <button type="button" onclick="setStatusFilter('Lida')" data-filter="Lida" class="filter-pill">Lidas (<span id="count-lida">0</span>)</button>
+                    <button type="button" onclick="setStatusFilter('Lendo')" data-filter="Lendo" class="filter-pill">Lendo (<span id="count-lendo">0</span>)</button>
+                    <button type="button" onclick="setStatusFilter('Quero Ler')" data-filter="Quero Ler" class="filter-pill">Quero Ler (<span id="count-quero">0</span>)</button>
+                    <button type="button" onclick="setStatusFilter('Abandonada')" data-filter="Abandonada" class="filter-pill">Abandonadas (<span id="count-aband">0</span>)</button>
+                    <button type="button" onclick="setStatusFilter('FAVORITES')" data-filter="FAVORITES" class="filter-pill">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        Favoritas
+                    </button>
+                </div>
+
+                <div class="search-sort-group">
+                    <div class="search-box">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="search-input" oninput="renderCatalog()" placeholder="Título, autor, fandom, tag..." class="input-control">
+                    </div>
+                    <select id="sort-select" onchange="renderCatalog()" class="select-control">
+                        <option value="recent">Mais recentes</option>
+                        <option value="rating-desc">Maior nota</option>
+                        <option value="title">Título A - Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="catalog-grid" class="catalog-grid"></div>
+
+            <div id="catalog-empty" class="empty-state hidden">
+                <p style="font-weight: 800; color: var(--text-strong); font-size: 1rem;">Nenhuma fanfic encontrada</p>
+                <p style="font-size: 0.85rem; margin-top: 4px;">Adicione uma história do Wattpad ou ajuste os filtros acima.</p>
+                <button type="button" onclick="openFicModal()" class="btn-primary-green" style="margin-top: 14px;">+ Cadastrar Fanfic</button>
+            </div>
+        </section>
+
+        <!-- ==================== ABA 2: DIÁRIO & RESENHAS ==================== -->
+        <section id="tab-diary" class="tab-section section-stack hidden">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Diário de Leituras & Resenhas</h2>
+                    <p class="section-subtitle">Suas impressões, notas e comentários em ordem cronológica.</p>
+                </div>
+                <button type="button" onclick="openFicModal()" class="btn-small" style="color: var(--green);">+ Nova Resenha</button>
+            </div>
+
+            <div id="diary-list" class="diary-list"></div>
+        </section>
+
+        <!-- ==================== ABA 3: LISTAS ==================== -->
+        <section id="tab-lists" class="tab-section section-stack hidden">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Minhas Listas & Coleções</h2>
+                    <p class="section-subtitle">Organize suas fics por tropas, universos alternativos ou nível de sofrimento.</p>
+                </div>
+                <button type="button" onclick="openListModal()" class="btn-primary-green" style="background-color: var(--blue-bright);">+ Criar Nova Lista</button>
+            </div>
+
+            <div id="lists-grid" class="lists-grid"></div>
+        </section>
+
+        <!-- ==================== ABA 4: ESTATÍSTICAS ==================== -->
+        <section id="tab-stats" class="tab-section section-stack hidden">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Suas Estatísticas de Leitura</h2>
+                    <p class="section-subtitle">Um resumo do seu histórico no Wattpad registrado no Ficboxd.</p>
+                </div>
+            </div>
+
+            <div class="stats-kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Fics Lidas</div>
+                    <div class="kpi-value" id="stat-total-read">0</div>
+                    <div style="font-size: 0.74rem; color: var(--green); margin-top: 4px;">Concluídas</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Nota Média</div>
+                    <div class="kpi-value" style="color: var(--green);">
+                        <span id="stat-avg-rating">0.0</span>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">De 5.0 estrelas</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Favoritas</div>
+                    <div class="kpi-value" style="color: var(--wattpad);">
+                        <span id="stat-favorites">0</span>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">Aqueceu o coração</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Resenhas Escritas</div>
+                    <div class="kpi-value" style="color: var(--blue);" id="stat-reviews">0</div>
+                    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">Opiniões registradas</div>
+                </div>
+            </div>
+
+            <div class="stats-details-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label" style="margin-bottom: 14px;">Distribuição por Status</div>
+                    <div id="status-bars"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label" style="margin-bottom: 14px;">Tropas & Tags Favoritas</div>
+                    <div id="top-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ABA 5: USUÁRIO / PERFIL PÚBLICO ==================== -->
+        <section id="tab-profile" class="tab-section section-stack hidden">
+            <!-- Barra Superior: Alternância de Modo + Atalhos Wattpad, Spotify, Tema + Busca @usuário -->
+            <div class="profile-toolbar">
+                <div class="toolbar-group">
+                    <button type="button" onclick="setProfileViewMode('mine')" id="btn-view-mine" class="btn-mode active-wattpad">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                        <span>Meu Perfil & Configurações</span>
+                    </button>
+                    <button type="button" onclick="setProfileViewMode('public')" id="btn-view-public" class="btn-mode">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Explorar Perfil de @usuário</span>
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <!-- Botão Wattpad -->
+                    <a id="btn-shortcut-wattpad" href="https://www.wattpad.com" target="_blank" rel="noopener noreferrer" class="btn-ext-wattpad" title="Abrir Wattpad em nova aba">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2.2 6.5c-.6 0-1 .5-.9 1.1l2.4 9.7c.2.8.9 1.3 1.7 1.3.7 0 1.4-.5 1.6-1.2l2.1-6.8 2.1 6.8c.2.7.9 1.2 1.6 1.2.8 0 1.5-.5 1.7-1.3l2.4-9.7c.1-.6-.3-1.1-.9-1.1-.5 0-.9.3-1 .8l-1.9 7.8-2.2-7.1c-.2-.7-.8-1.1-1.5-1.1s-1.3.4-1.5 1.1l-2.2 7.1-1.9-7.8c-.1-.5-.5-.8-1-.8zm17.4 2.4c-.6 0-1.1.5-1.1 1.1v6.2c0 .6.5 1.1 1.1 1.1s1.1-.5 1.1-1.1V10c0-.6-.5-1.1-1.1-1.1z"/></svg>
+                        <span>Wattpad</span>
+                    </a>
+
+                    <!-- Botão Spotify -->
+                    <a id="btn-shortcut-spotify" href="https://open.spotify.com" target="_blank" rel="noopener noreferrer" class="btn-ext-spotify" title="Abrir Spotify em nova aba">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5C6.2 1.5 1.5 6.2 1.5 12S6.2 22.5 12 22.5 22.5 17.8 22.5 12 17.8 1.5 12 1.5zm4.8 15.1c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.9-9.3-1-.4.1-.7-.1-.8-.5-.1-.4.1-.7.5-.8 4-.9 7.5-.5 10.3 1.2.3.2.4.6.2.9zm1.3-2.9c-.2.4-.7.5-1.1.3-2.8-1.7-7.1-2.2-10.4-1.2-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1 3.8-1.1 8.5-.6 11.7 1.4.4.2.5.7.3 1zm.1-3c-3.4-2-9-2.2-12.2-1.2-.5.2-1.1-.1-1.2-.6-.2-.5.1-1.1.6-1.2 3.7-1.1 9.9-.9 13.8 1.4.5.3.6.9.3 1.4-.2.4-.8.5-1.3.2z"/></svg>
+                        <span>Spotify</span>
+                    </a>
+
+                    <!-- Botão Modo Escuro / Modo Claro -->
+                    <button type="button" onclick="toggleThemeMode()" id="btn-theme-toggle" class="btn-theme" title="Alternar entre Modo Escuro e Modo Claro">
+                        <span id="theme-toggle-icon">☀️</span>
+                        <span id="theme-toggle-label">Modo Claro</span>
+                    </button>
+
+                    <!-- Busca rápida por @usuário -->
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="text" id="lookup-handle-input" onkeydown="if(event.key==='Enter') lookupPublicProfile()" placeholder="Buscar @usuário..." class="input-control" style="width: 155px; padding: 7px 10px; font-size: 0.78rem;">
+                        <button type="button" onclick="lookupPublicProfile()" class="btn-primary-green" style="background-color: var(--blue-bright); padding: 7px 12px;">Ver</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW A: MEU PERFIL EDITÁVEL (ESTILO TWITTER / X) -->
+            <div id="profile-mine-panel" class="section-stack">
+                <div class="twitter-profile-card">
+                    <!-- Banner Panorâmico -->
+                    <div class="twitter-banner">
+                        <img id="my-profile-banner-img" src="" alt="Banner de fundo" class="hidden">
+                        <div class="banner-overlay-grad"></div>
+                        <label for="prof-banner-file" class="banner-change-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            <span>Trocar Capa</span>
+                        </label>
+                    </div>
+
+                    <div class="twitter-body">
+                        <div class="twitter-avatar-row">
+                            <div class="twitter-avatar-wrap">
+                                <div id="my-profile-avatar" class="twitter-avatar">G</div>
+                                <label for="prof-avatar-file" class="avatar-cam-badge" title="Escolher foto de perfil">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                </label>
+                            </div>
+
+                            <div class="profile-action-pills">
+                                <button type="button" onclick="copyShareHandleCard()" class="btn-pill-green">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                    <span>Copiar @usuário</span>
+                                </button>
+                                <button type="button" onclick="previewMyPublicProfile()" class="btn-pill-outline">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span>Ver Como Público</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                <h2 id="my-profile-display-name" style="font-size: 1.35rem; font-weight: 800; color: var(--text-strong);">Giovanna Leituras</h2>
+                                <span id="my-profile-handle-pill" class="handle-pill-mini" style="font-size: 0.78rem; padding: 3px 10px;">@giovanna.reads</span>
+                            </div>
+
+                            <p id="my-profile-bio-preview" style="font-size: 0.88rem; margin-top: 6px; max-width: 680px;">
+                                Apaixonada por slow burn, enemies to lovers e fanfics que destroem o coração antes de curar.
+                            </p>
+
+                            <div class="profile-links-inline">
+                                <a id="card-link-wattpad" href="https://www.wattpad.com" target="_blank" rel="noopener noreferrer" style="color: var(--wattpad);">
+                                    📖 <span id="card-link-wattpad-text">wattpad.com</span>
+                                </a>
+                                <span style="color: var(--border-subtle);">•</span>
+                                <a id="card-link-spotify" href="https://open.spotify.com" target="_blank" rel="noopener noreferrer" style="color: var(--spotify);">
+                                    🎵 Playlist de Leitura no Spotify
+                                </a>
+                            </div>
+
+                            <div id="my-profile-favs-preview" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulário de Edição do Perfil -->
+                <form id="profile-form" onsubmit="saveProfileFromForm(event)" class="form-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+                        <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-strong);">Personalizar Perfil, Foto & Capa</h3>
+                        <span style="font-size: 0.72rem; color: var(--text-muted);">Salvo automaticamente</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="upload-box">
+                            <span class="field-label">Foto de Perfil (Avatar)</span>
+                            <div class="upload-btn-row">
+                                <label for="prof-avatar-file" class="btn-small" style="cursor: pointer;">Escolher Foto</label>
+                                <input type="file" id="prof-avatar-file" accept="image/*" onchange="handleProfileImageUpload(event, 'avatar')" class="hidden">
+                                <button type="button" onclick="clearProfileImage('avatar')" class="btn-small" style="color: var(--danger);">Remover</button>
+                            </div>
+                            <input type="url" id="prof-avatar-url" placeholder="Ou cole a URL da foto de perfil..." class="input-control" style="font-size: 0.78rem;">
+                        </div>
+
+                        <div class="upload-box">
+                            <span class="field-label">Imagem de Fundo (Banner estilo Twitter)</span>
+                            <div class="upload-btn-row">
+                                <label for="prof-banner-file" class="btn-small" style="cursor: pointer;">Escolher Capa</label>
+                                <input type="file" id="prof-banner-file" accept="image/*" onchange="handleProfileImageUpload(event, 'banner')" class="hidden">
+                                <button type="button" onclick="clearProfileImage('banner')" class="btn-small" style="color: var(--danger);">Resetar Capa</button>
+                            </div>
+                            <input type="url" id="prof-banner-url" placeholder="Ou cole a URL da imagem de fundo..." class="input-control" style="font-size: 0.78rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="field-label" for="prof-handle">Nome de Usuário (@handle) *</label>
+                            <input type="text" id="prof-handle" required placeholder="Ex: @giovanna.reads" class="input-control">
+                        </div>
+                        <div>
+                            <label class="field-label" for="prof-name">Nome de Exibição *</label>
+                            <input type="text" id="prof-name" required placeholder="Ex: Giovanna Leituras" class="input-control">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="field-label" for="prof-bio">Bio / Sobre suas leituras</label>
+                        <textarea id="prof-bio" rows="3" placeholder="Conte o que você ama ler no Wattpad..." class="textarea-control"></textarea>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="field-label" for="prof-wattpad-url">Seu Link do Wattpad</label>
+                            <input type="url" id="prof-wattpad-url" placeholder="https://www.wattpad.com/user/seu_usuario" class="input-control">
+                        </div>
+                        <div>
+                            <label class="field-label" for="prof-spotify-url">Seu Link / Playlist do Spotify</label>
+                            <input type="url" id="prof-spotify-url" placeholder="https://open.spotify.com/playlist/..." class="input-control">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="field-label" for="prof-favs">Fandoms & Tropas Favoritas (separadas por vírgula)</label>
+                        <input type="text" id="prof-favs" placeholder="Ex: Slow Burn, Enemies to Lovers, Dramione, College AU" class="input-control">
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn-primary-green" style="padding: 10px 20px;">Salvar Perfil</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SUB-VIEW B: EXPLORAR PERFIL PÚBLICO DE @USUÁRIO -->
+            <div id="profile-public-panel" class="section-stack hidden">
+                <div class="kpi-card">
+                    <div class="kpi-label" style="margin-bottom: 10px;">Perfis públicos disponíveis para visitar:</div>
+                    <div id="suggested-profiles-list" class="suggested-grid"></div>
+                </div>
+
+                <div id="public-profile-header" class="twitter-profile-card"></div>
+
+                <div class="filter-bar">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-strong);">Filtrar resenhas públicas:</span>
+                    <div class="search-sort-group">
+                        <input type="text" id="public-filter-query" oninput="renderPublicProfileContent()" placeholder="Filtrar por título, fandom ou tag..." class="input-control" style="font-size: 0.78rem;">
+                        <select id="public-filter-rating" onchange="renderPublicProfileContent()" class="select-control" style="font-size: 0.78rem;">
+                            <option value="0">Todas as notas</option>
+                            <option value="4.5">4.5 ★ ou mais</option>
+                            <option value="4.0">4.0 ★ ou mais</option>
+                            <option value="3.5">3.5 ★ ou mais</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-stack" style="gap: 12px;">
+                    <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-strong);">Resenhas & Opiniões Públicas</h3>
+                    <div id="public-reviews-list" class="diary-list"></div>
+                </div>
+
+                <div class="section-stack" style="gap: 12px;">
+                    <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-strong);">Listas Públicas</h3>
+                    <div id="public-lists-grid" class="lists-grid"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== MODAL 1: CADASTRAR / EDITAR FANFIC ==================== -->
+    <div id="fic-modal" class="modal-backdrop hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="fic-modal-title" style="font-size: 1.05rem; font-weight: 800; color: var(--text-strong);">Registrar Fanfic</h3>
+                <button type="button" onclick="closeFicModal()" class="icon-btn" title="Fechar">✕</button>
+            </div>
+
+            <form id="fic-form" onsubmit="saveFicFromForm(event)" class="modal-body">
+                <input type="hidden" id="fic-id">
+
+                <div class="form-grid-2">
+                    <div>
+                        <label class="field-label" for="fic-title">Título da Fanfic *</label>
+                        <input type="text" id="fic-title" required placeholder="Ex: Entre Livros e Tempestades" class="input-control">
+                    </div>
+                    <div>
+                        <label class="field-label" for="fic-author">Autor(a) no Wattpad *</label>
+                        <input type="text" id="fic-author" required placeholder="Ex: @autora_fic" class="input-control">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div>
+                        <label class="field-label" for="fic-fandom">Fandom / Universo / Ship</label>
+                        <input type="text" id="fic-fandom" placeholder="Ex: Harry Potter, BTS, Original..." class="input-control">
+                    </div>
+                    <div>
+                        <label class="field-label" for="fic-status">Status de Leitura</label>
+                        <select id="fic-status" class="select-control" style="width: 100%;">
+                            <option value="Lida">Lida</option>
+                            <option value="Lendo">Lendo</option>
+                            <option value="Quero Ler">Quero Ler</option>
+                            <option value="Abandonada">Abandonada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="rating-box">
+                    <div>
+                        <span class="field-label">Sua Nota (clique novamente na mesma estrela para meia-estrela)</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div id="star-picker" class="star-picker"></div>
+                            <span id="rating-display-text" style="font-weight: 800; color: var(--green);">0.0</span>
+                            <button type="button" onclick="setFormRating(0)" style="font-size: 0.72rem; color: var(--text-muted); text-decoration: underline;">Limpar</button>
+                        </div>
+                        <input type="hidden" id="fic-rating" value="0">
+                    </div>
+
+                    <div>
+                        <button type="button" id="fav-toggle-btn" onclick="toggleFormFavorite()" class="fav-btn">
+                            <span>♥</span>
+                            <span>Favorita</span>
+                        </button>
+                        <input type="hidden" id="fic-favorite" value="false">
+                    </div>
+                </div>
+
+                <div class="form-grid-3">
+                    <div>
+                        <label class="field-label" for="fic-date">Data da Leitura</label>
+                        <input type="date" id="fic-date" class="input-control">
+                    </div>
+                    <div>
+                        <label class="field-label" for="fic-cover">Link da Capa (Opcional)</label>
+                        <input type="url" id="fic-cover" placeholder="https://..." class="input-control">
+                    </div>
+                    <div>
+                        <label class="field-label" for="fic-link">Link no Wattpad (Opcional)</label>
+                        <input type="url" id="fic-link" placeholder="https://www.wattpad.com/story/..." class="input-control">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="field-label" for="fic-tags">Tropas & Tags (separadas por vírgula)</label>
+                    <input type="text" id="fic-tags" placeholder="Ex: Slow Burn, Enemies to Lovers, Fake Dating, Angst" class="input-control">
+                </div>
+
+                <div>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+                        <label class="field-label" for="fic-review" style="margin: 0;">Sua Resenha / Comentários</label>
+                        <div style="display: flex; align-items: center; gap: 12px; font-size: 0.76rem; font-weight: 700;">
+                            <label style="display: inline-flex; align-items: center; gap: 5px; color: var(--green); cursor: pointer;">
+                                <input type="checkbox" id="fic-public" checked>
+                                <span>Resenha Pública</span>
+                            </label>
+                            <label style="display: inline-flex; align-items: center; gap: 5px; color: var(--wattpad); cursor: pointer;">
+                                <input type="checkbox" id="fic-spoiler">
+                                <span>Contém Spoilers</span>
+                            </label>
+                        </div>
+                    </div>
+                    <textarea id="fic-review" rows="4" placeholder="O que você achou da escrita, dos personagens, do plot twist?..." class="textarea-control"></textarea>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+                    <button type="button" id="delete-fic-btn" onclick="deleteCurrentFic()" class="hidden" style="color: var(--danger); font-size: 0.8rem; font-weight: 700;">Excluir Fanfic</button>
+                    <div style="display: flex; gap: 8px; margin-left: auto;">
+                        <button type="button" onclick="closeFicModal()" class="btn-small">Cancelar</button>
+                        <button type="submit" class="btn-primary-green">Salvar Fanfic</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: CRIAR / EDITAR LISTA ==================== -->
+    <div id="list-modal" class="modal-backdrop hidden">
+        <div class="modal-box modal-box-sm">
+            <div class="modal-header">
+                <h3 id="list-modal-title" style="font-size: 1.05rem; font-weight: 800; color: var(--text-strong);">Nova Lista de Leitura</h3>
+                <button type="button" onclick="closeListModal()" class="icon-btn" title="Fechar">✕</button>
+            </div>
+
+            <form id="list-form" onsubmit="saveListFromForm(event)" class="modal-body">
+                <input type="hidden" id="list-id">
+                <div>
+                    <label class="field-label" for="list-name">Nome da Lista *</label>
+                    <input type="text" id="list-name" required placeholder="Ex: Slow Burn de Tirar o Fôlego" class="input-control">
+                </div>
+                <div>
+                    <label class="field-label" for="list-desc">Descrição</label>
+                    <textarea id="list-desc" rows="2" placeholder="Sobre o que é essa coleção..." class="textarea-control"></textarea>
+                </div>
+                <div class="upload-box" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-strong);">Visibilidade da Lista</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">Listas públicas aparecem no seu @usuário.</div>
+                    </div>
+                    <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 800; color: var(--green); cursor: pointer;">
+                        <input type="checkbox" id="list-public" checked>
+                        <span>Pública</span>
+                    </label>
+                </div>
+                <div>
+                    <span class="field-label">Selecione as Fanfics desta Lista</span>
+                    <div id="list-fics-checklist" class="upload-box" style="max-height: 180px; overflow-y: auto;"></div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px;">
+                    <button type="button" onclick="closeListModal()" class="btn-small">Cancelar</button>
+                    <button type="submit" class="btn-primary-green" style="background-color: var(--blue-bright);">Salvar Lista</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: DETALHES DA FANFIC ==================== -->
+    <div id="detail-modal" class="modal-backdrop hidden">
+        <div class="modal-box" id="detail-modal-content"></div>
+    </div>
+
+    <!-- ==================== MODAL 4: BACKUP & EXPORTAÇÃO JSON ==================== -->
+    <div id="backup-modal" class="modal-backdrop hidden">
+        <div class="modal-box modal-box-sm">
+            <div class="modal-header">
+                <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-strong);">Backup & Restauração (JSON)</h3>
+                <button type="button" onclick="closeBackupModal()" class="icon-btn" title="Fechar">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.82rem; color: var(--text-light);">
+                    Suas fanfics, notas, resenhas, listas e perfil são salvos automaticamente neste navegador/dispositivo. Você também pode exportar ou restaurar um arquivo de backup:
+                </p>
+                <button type="button" onclick="exportBackupJSON()" class="btn-primary-green" style="justify-content: center; padding: 11px;">
+                    Baixar Backup Completo (.json)
+                </button>
+                <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+                    <label class="field-label" for="import-json-file">Restaurar de um arquivo JSON</label>
+                    <input type="file" id="import-json-file" accept=".json" onchange="importBackupJSON(event)" class="input-control" style="font-size: 0.78rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NOTIFICAÇÃO TOAST ==================== -->
+    <div id="toast" class="toast hidden">
+        <span style="color: var(--green);">✓</span>
+        <span id="toast-message">Salvo!</span>
+    </div>
+
+    <!-- ==================== LÓGICA JAVASCRIPT 100% LOCAL ==================== -->
+    <script>
+        const STORAGE_KEY = 'ficboxd_offline_v1';
+
+        const DEFAULT_DATA = {
+            theme: 'dark',
+            profile: {
+                handle: '@giovanna.reads',
+                displayName: 'Giovanna Leituras',
+                bio: 'Apaixonada por slow burn, enemies to lovers e fanfics que destroem o coração antes de curar.',
+                avatarUrl: '',
+                bannerUrl: '',
+                wattpadUrl: 'https://www.wattpad.com',
+                spotifyUrl: 'https://open.spotify.com',
+                favoriteTropes: ['Slow Burn', 'Enemies to Lovers', 'Dramione', 'College AU']
+            },
+            likedReviewIds: [],
+            fics: [
+                {
+                    id: 'fic-demo-1',
+                    title: 'Entre Livros e Tempestades',
+                    author: '@luiza_escreve',
+                    fandom: 'Harry Potter • Dramione',
+                    status: 'Lida',
+                    rating: 5.0,
+                    favorite: true,
+                    dateRead: '2026-10-18',
+                    coverUrl: '',
+                    link: 'https://www.wattpad.com',
+                    tags: ['Slow Burn', 'Enemies to Lovers', 'Pós-Guerra', 'Emocionante'],
+                    hasSpoilers: false,
+                    isPublic: true,
+                    likes: 4,
+                    review: 'Simplesmente a melhor fanfic que li este ano! A construção do relacionamento deles é feita com tanta calma e profundidade que cada diálogo parece uma obra de arte. O capítulo 34 me destruiu emocionalmente, mas o final compensa cada lágrima.'
+                },
+                {
+                    id: 'fic-demo-2',
+                    title: 'Neon & Cafeína às 3 da Manhã',
+                    author: '@saturnowrites',
+                    fandom: 'Original / K-Pop AU',
+                    status: 'Lida',
+                    rating: 4.5,
+                    favorite: true,
+                    dateRead: '2026-11-02',
+                    coverUrl: '',
+                    link: 'https://www.wattpad.com',
+                    tags: ['Coffee Shop AU', 'Found Family', 'Conforto', 'Humor'],
+                    hasSpoilers: true,
+                    isPublic: true,
+                    likes: 2,
+                    review: 'Perfeita para curar ressaca literária! A química entre os protagonistas é hilária desde o primeiro encontro na cafeteria. Quando eles finalmente descobrem que eram rivais no jogo online no capítulo 19, eu gritei!'
+                },
+                {
+                    id: 'fic-demo-3',
+                    title: 'O Preço da Coroa de Vidro',
+                    author: '@cronicas_noturnas',
+                    fandom: 'Percy Jackson • Percabeth',
+                    status: 'Lendo',
+                    rating: 4.0,
+                    favorite: false,
+                    dateRead: '2026-11-15',
+                    coverUrl: '',
+                    link: 'https://www.wattpad.com',
+                    tags: ['Royalty AU', 'Angst', 'Plot Twist'],
+                    hasSpoilers: false,
+                    isPublic: true,
+                    likes: 1,
+                    review: 'Estou no capítulo 14 e completamente viciada na intriga política desse universo alternativo. Mal posso esperar para ver como vão sair da emboscada no baile.'
+                }
+            ],
+            lists: [
+                {
+                    id: 'list-demo-1',
+                    name: 'Favoritas de Todos os Tempos',
+                    description: 'Aquelas histórias perfeitas do Wattpad que eu releria mil vezes sem cansar.',
+                    isPublic: true,
+                    ficIds: ['fic-demo-1', 'fic-demo-2']
+                },
+                {
+                    id: 'list-demo-2',
+                    name: 'Slow Burn Impecável',
+                    description: 'Para sofrer junto esperando o primeiro beijo por 30 capítulos.',
+                    isPublic: true,
+                    ficIds: ['fic-demo-1']
+                }
+            ]
+        };
+
+        const SAMPLE_PUBLIC_PROFILES = {
+            '@ana.slowburn': {
+                handle: '@ana.slowburn',
+                displayName: 'Ana Clara • Slow Burn',
+                bio: 'Se não tem 30 capítulos de tensão acumulada e um olhar trocado no corredor, eu nem começo. Avaliações sinceras de fics do Wattpad.',
+                avatarUrl: '',
+                bannerUrl: '',
+                wattpadUrl: 'https://www.wattpad.com',
+                spotifyUrl: 'https://open.spotify.com',
+                favoriteTropes: ['Slow Burn', 'Angst', 'Friends to Lovers', 'Hurt/Comfort'],
+                fics: [
+                    {
+                        id: 'pub-ana-1',
+                        title: 'Cartas Que Nunca Enviei',
+                        author: '@mari_palavras',
+                        fandom: 'Original • Romance',
+                        status: 'Lida',
+                        rating: 5.0,
+                        favorite: true,
+                        dateRead: '2026-11-10',
+                        coverUrl: '',
+                        link: 'https://www.wattpad.com',
+                        tags: ['Slow Burn', 'Second Chance', 'Choro Garantido'],
+                        hasSpoilers: false,
+                        isPublic: true,
+                        likes: 14,
+                        review: 'A forma como eles se reencontram depois de cinco anos e fingem indiferença é tortura psicológica da melhor qualidade. O final aqueceu meu coração inteiro.'
+                    },
+                    {
+                        id: 'pub-ana-2',
+                        title: 'A Biblioteca Entre Dois Mundos',
+                        author: '@bruna_nocturne',
+                        fandom: 'Fantasia • Fantasy Romance',
+                        status: 'Lida',
+                        rating: 4.5,
+                        favorite: false,
+                        dateRead: '2026-10-28',
+                        coverUrl: '',
+                        link: 'https://www.wattpad.com',
+                        tags: ['Fantasy AU', 'Banter', 'Found Family'],
+                        hasSpoilers: true,
+                        isPublic: true,
+                        likes: 9,
+                        review: 'O sistema de magia baseado em memórias é genial. Atenção: quando o guardião entrega a chave no capítulo 22, tudo muda de figura!'
+                    }
+                ],
+                lists: [
+                    {
+                        id: 'pub-list-ana-1',
+                        name: 'Sofrência com Final Feliz',
+                        description: 'Para chorar no banho e terminar sorrindo.',
+                        isPublic: true,
+                        ficIds: ['pub-ana-1', 'pub-ana-2']
+                    }
+                ]
+            },
+            '@lucas.fics': {
+                handle: '@lucas.fics',
+                displayName: 'Lucas • Plot & Ação',
+                bio: 'Caçador de fanfics com bons plot twists, universos alternativos criativos e diálogos afiados.',
+                avatarUrl: '',
+                bannerUrl: '',
+                wattpadUrl: 'https://www.wattpad.com',
+                spotifyUrl: 'https://open.spotify.com',
+                favoriteTropes: ['Plot Twist', 'Enemies to Lovers', 'Sci-Fi / Ação', 'Fake Dating'],
+                fics: [
+                    {
+                        id: 'pub-lucas-1',
+                        title: 'Código Vermelho na Madrugada',
+                        author: '@rafa_thriller',
+                        fandom: 'Suspense • Fake Dating',
+                        status: 'Lida',
+                        rating: 5.0,
+                        favorite: true,
+                        dateRead: '2026-11-12',
+                        coverUrl: '',
+                        link: 'https://www.wattpad.com',
+                        tags: ['Fake Dating', 'Plot Twist', 'Adrenalina'],
+                        hasSpoilers: false,
+                        isPublic: true,
+                        likes: 19,
+                        review: 'Começou como uma comédia de namoro falso para despistar um plano e virou um suspense eletrizante. Nota 5 sem pensar duas vezes.'
+                    },
+                    {
+                        id: 'pub-lucas-2',
+                        title: 'Estação Orbital Sete',
+                        author: '@clara_cosmos',
+                        fandom: 'Sci-Fi • Space AU',
+                        status: 'Lendo',
+                        rating: 4.0,
+                        favorite: false,
+                        dateRead: '2026-11-18',
+                        coverUrl: '',
+                        link: 'https://www.wattpad.com',
+                        tags: ['Space AU', 'Slow Burn', 'Survival'],
+                        hasSpoilers: false,
+                        isPublic: true,
+                        likes: 6,
+                        review: 'Ambientação espacial muito bem escrita e tensão constante entre a tripulação.'
+                    }
+                ],
+                lists: [
+                    {
+                        id: 'pub-list-lucas-1',
+                        name: 'Reviravoltas Que Ninguém Viu Vir',
+                        description: 'Fics que mudam de direção no meio do caminho.',
+                        isPublic: true,
+                        ficIds: ['pub-lucas-1']
+                    }
+                ]
+            }
+        };
+
+        let appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        let statusFilter = 'ALL';
+        let profileViewMode = 'mine';
+        let selectedPublicHandle = '@ana.slowburn';
+
+        function normalizeHandle(raw) {
+            let h = String(raw || '').trim().toLowerCase().replace(/\s+/g, '');
+            if (!h) return '@minha.conta';
+            if (!h.startsWith('@')) h = '@' + h;
+            return h.replace(/[^a-z0-9._@]/g, '');
+        }
+
+        function sanitizeExternalUrl(url, fallback) {
+            const trimmed = String(url || '').trim();
+            if (!trimmed) return fallback;
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            return 'https://' + trimmed;
+        }
+
+        function normalizeState(raw) {
+            const base = JSON.parse(JSON.stringify(DEFAULT_DATA));
+            return {
+                theme: raw?.theme === 'light' ? 'light' : 'dark',
+                profile: {
+                    handle: normalizeHandle(raw?.profile?.handle || base.profile.handle),
+                    displayName: (raw?.profile?.displayName || base.profile.displayName).trim(),
+                    bio: (raw?.profile?.bio ?? base.profile.bio).trim(),
+                    avatarUrl: String(raw?.profile?.avatarUrl || '').trim(),
+                    bannerUrl: String(raw?.profile?.bannerUrl || '').trim(),
+                    wattpadUrl: sanitizeExternalUrl(raw?.profile?.wattpadUrl, 'https://www.wattpad.com'),
+                    spotifyUrl: sanitizeExternalUrl(raw?.profile?.spotifyUrl, 'https://open.spotify.com'),
+                    favoriteTropes: Array.isArray(raw?.profile?.favoriteTropes) ? raw.profile.favoriteTropes : base.profile.favoriteTropes
+                },
+                likedReviewIds: Array.isArray(raw?.likedReviewIds) ? raw.likedReviewIds : [],
+                fics: Array.isArray(raw?.fics) ? raw.fics.map(f => ({
+                    ...f,
+                    isPublic: typeof f.isPublic === 'boolean' ? f.isPublic : true,
+                    likes: typeof f.likes === 'number' ? f.likes : 0
+                })) : base.fics,
+                lists: Array.isArray(raw?.lists) ? raw.lists.map(l => ({
+                    ...l,
+                    isPublic: typeof l.isPublic === 'boolean' ? l.isPublic : true
+                })) : base.lists
+            };
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    appState = normalizeState(JSON.parse(saved));
+                } else {
+                    saveState(false);
+                }
+            } catch (e) {
+                console.warn('Erro ao ler localStorage:', e);
+            }
+            applyThemeToDOM(appState.theme);
+        }
+
+        function saveState(notify = false) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                const textEl = document.getElementById('save-text');
+                if (textEl) textEl.textContent = 'Salvo no dispositivo';
+            } catch (e) {
+                console.warn('Erro ao salvar no localStorage:', e);
+            }
+            if (notify) {
+                showToast('Alterações salvas automaticamente!');
+            }
+        }
+
+        function applyThemeToDOM(theme) {
+            const isDark = theme !== 'light';
+            document.documentElement.classList.toggle('dark', isDark);
+            const iconEl = document.getElementById('theme-toggle-icon');
+            const labelEl = document.getElementById('theme-toggle-label');
+            if (iconEl) iconEl.textContent = isDark ? '☀️' : '🌙';
+            if (labelEl) labelEl.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+        }
+
+        function toggleThemeMode() {
+            appState.theme = appState.theme === 'light' ? 'dark' : 'light';
+            applyThemeToDOM(appState.theme);
+            saveState(false);
+            showToast(appState.theme === 'dark' ? 'Modo Escuro ativado' : 'Modo Claro ativado');
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatDateBR(isoDate) {
+            if (!isoDate) return 'Sem data';
+            const parts = isoDate.split('-');
+            if (parts.length !== 3) return isoDate;
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return `${parts[2]} ${months[parseInt(parts[1], 10) - 1] || parts[1]} ${parts[0]}`;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2800);
+        }
+
+        // ==================== UPLOAD E REDIMENSIONAMENTO DE IMAGENS ====================
+        function compressImageFileToDataURL(file, maxWidth, maxHeight, quality = 0.8) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth || h > maxHeight) {
+                            const ratio = Math.min(maxWidth / w, maxHeight / h);
+                            w = Math.round(w * ratio);
+                            h = Math.round(h * ratio);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = reject;
+                    img.src = ev.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleProfileImageUpload(event, targetType) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                const dataUrl = targetType === 'avatar'
+                    ? await compressImageFileToDataURL(file, 300, 300, 0.84)
+                    : await compressImageFileToDataURL(file, 1100, 380, 0.8);
+
+                if (targetType === 'avatar') {
+                    appState.profile.avatarUrl = dataUrl;
+                    document.getElementById('prof-avatar-url').value = '';
+                } else {
+                    appState.profile.bannerUrl = dataUrl;
+                    document.getElementById('prof-banner-url').value = '';
+                }
+                renderAll();
+                saveState(false);
+                showToast(targetType === 'avatar' ? 'Foto de perfil atualizada!' : 'Capa de fundo atualizada!');
+            } catch (e) {
+                showToast('Não foi possível processar a imagem.');
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        function clearProfileImage(targetType) {
+            if (targetType === 'avatar') {
+                appState.profile.avatarUrl = '';
+                document.getElementById('prof-avatar-url').value = '';
+            } else {
+                appState.profile.bannerUrl = '';
+                document.getElementById('prof-banner-url').value = '';
+            }
+            renderAll();
+            saveState(false);
+            showToast(targetType === 'avatar' ? 'Foto de perfil removida' : 'Capa resetada');
+        }
+
+        // ==================== CAPAS E ESTRELAS SVG ====================
+        function getGradClass(title) {
+            let hash = 0;
+            for (let i = 0; i < (title || '').length; i++) {
+                hash = title.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return 'grad-' + (Math.abs(hash) % 6);
+        }
+
+        function renderPosterHTML(fic) {
+            const grad = getGradClass(fic.title);
+            const fallback = `
+                <div class="generated-cover ${grad}">
+                    <span class="cover-fandom">${escapeHTML(fic.fandom || 'Wattpad')}</span>
+                    <div class="cover-title">${escapeHTML(fic.title)}</div>
+                    <span class="cover-author">${escapeHTML(fic.author)}</span>
+                </div>
+            `;
+            if (fic.coverUrl && fic.coverUrl.trim() !== '') {
+                return `
+                    <img src="${escapeHTML(fic.coverUrl)}" alt="${escapeHTML(fic.title)}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="generated-cover ${grad}" style="display:none;">
+                        <span class="cover-fandom">${escapeHTML(fic.fandom || 'Wattpad')}</span>
+                        <div class="cover-title">${escapeHTML(fic.title)}</div>
+                        <span class="cover-author">${escapeHTML(fic.author)}</span>
+                    </div>
+                `;
+            }
+            return fallback;
+        }
+
+        function renderStarsHTML(rating, size = 14) {
+            const val = parseFloat(rating) || 0;
+            let html = '<span class="stars-row">';
+            for (let i = 1; i <= 5; i++) {
+                if (val >= i) {
+                    html += `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+                } else if (val >= i - 0.5) {
+                    const gid = `hg-${i}-${String(val).replace('.', '_')}-${Math.floor(Math.random() * 10000)}`;
+                    html += `<svg width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <defs><linearGradient id="${gid}"><stop offset="50%" stop-color="#00E054"/><stop offset="50%" stop-color="#475569"/></linearGradient></defs>
+                        <path fill="url(#${gid})" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>`;
+                } else {
+                    html += `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="#475569"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+                }
+            }
+            html += '</span>';
+            return html;
+        }
+
+        // ==================== NAVEGAÇÃO ====================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabName}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${tabName}`)?.classList.add('active');
+            document.getElementById(`mob-nav-${tabName}`)?.classList.add('active');
+
+            renderAll();
+        }
+
+        function renderAll() {
+            renderHeaderUser();
+            renderCatalog();
+            renderDiary();
+            renderLists();
+            renderStats();
+            renderProfileTab();
+        }
+
+        function renderAvatarInner(avatarUrl, initial) {
+            if (avatarUrl && avatarUrl.trim() !== '') {
+                return `<img src="${escapeHTML(avatarUrl)}" alt="Foto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><span style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">${escapeHTML(initial)}</span>`;
+            }
+            return escapeHTML(initial);
+        }
+
+        function renderHeaderUser() {
+            const prof = appState.profile;
+            const initial = (prof.displayName || prof.handle || 'G').replace(/^@/, '').charAt(0).toUpperCase() || 'G';
+            document.getElementById('header-avatar').innerHTML = renderAvatarInner(prof.avatarUrl, initial);
+            document.getElementById('header-handle').textContent = prof.handle;
+            document.getElementById('nav-handle-badge').textContent = prof.handle;
+        }
+
+        // ==================== 1. CATÁLOGO ====================
+        function setStatusFilter(filter) {
+            statusFilter = filter;
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.toggle('active', pill.dataset.filter === filter);
+            });
+            renderCatalog();
+        }
+
+        function renderCatalog() {
+            const fics = appState.fics || [];
+            document.getElementById('count-all').textContent = fics.length;
+            document.getElementById('count-lida').textContent = fics.filter(f => f.status === 'Lida').length;
+            document.getElementById('count-lendo').textContent = fics.filter(f => f.status === 'Lendo').length;
+            document.getElementById('count-quero').textContent = fics.filter(f => f.status === 'Quero Ler').length;
+            document.getElementById('count-aband').textContent = fics.filter(f => f.status === 'Abandonada').length;
+
+            const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+            const sortBy = document.getElementById('sort-select')?.value || 'recent';
+
+            let filtered = fics.filter(fic => {
+                if (statusFilter === 'FAVORITES' && !fic.favorite) return false;
+                if (statusFilter !== 'ALL' && statusFilter !== 'FAVORITES' && fic.status !== statusFilter) return false;
+                if (query) {
+                    const hay = `${fic.title} ${fic.author} ${fic.fandom} ${(fic.tags || []).join(' ')}`.toLowerCase();
+                    if (!hay.includes(query)) return false;
+                }
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                if (sortBy === 'rating-desc') return (b.rating || 0) - (a.rating || 0);
+                if (sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
+                return (b.dateRead || '').localeCompare(a.dateRead || '');
+            });
+
+            const grid = document.getElementById('catalog-grid');
+            const empty = document.getElementById('catalog-empty');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = filtered.map(fic => {
+                const badgeClass = fic.status === 'Lida' ? 'badge-lida' : (fic.status === 'Lendo' ? 'badge-lendo' : 'badge-default');
+                return `
+                    <div class="poster-card" onclick="openDetailModal('${fic.id}')">
+                        <div class="book-aspect">
+                            ${renderPosterHTML(fic)}
+                            <span class="poster-badge-tl ${badgeClass}">${escapeHTML(fic.status)}</span>
+                            <div class="poster-badges-tr">
+                                ${fic.isPublic === false ? `<span class="mini-badge-dark" title="Privada">🔒</span>` : ''}
+                                ${fic.review ? `<span class="mini-badge-dark" title="Possui resenha">📝</span>` : ''}
+                            </div>
+                            <div class="poster-hover-overlay">
+                                <div style="font-size: 0.82rem; font-weight: 800; line-height: 1.25;">${escapeHTML(fic.title)}</div>
+                                <div style="font-size: 0.72rem; opacity: 0.82; margin-top: 2px;">${escapeHTML(fic.author)}</div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #00E054;">Ver detalhes</span>
+                                    <button type="button" onclick="event.stopPropagation(); openFicModal('${fic.id}')" style="background: rgba(255,255,255,0.2); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">Editar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="poster-footer">
+                            <div>${fic.rating > 0 ? renderStarsHTML(fic.rating, 14) : '<span style="font-size: 0.72rem; color: var(--text-muted);">Sem nota</span>'}</div>
+                            ${fic.favorite ? '<span style="color: var(--wattpad); font-size: 0.95rem;" title="Favorita">♥</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== 2. DIÁRIO & RESENHAS ====================
+        function renderDiary() {
+            const container = document.getElementById('diary-list');
+            const fics = [...(appState.fics || [])].sort((a, b) => (b.dateRead || '').localeCompare(a.dateRead || ''));
+
+            if (fics.length === 0) {
+                container.innerHTML = `<div class="empty-state">Seu diário está vazio. Registre sua primeira fanfic!</div>`;
+                return;
+            }
+
+            container.innerHTML = fics.map(fic => {
+                const spoilerId = `spoiler-${fic.id}`;
+                return `
+                    <article class="diary-card">
+                        <div class="diary-poster-wrap" onclick="openDetailModal('${fic.id}')">
+                            <div class="book-aspect">${renderPosterHTML(fic)}</div>
+                        </div>
+                        <div class="diary-body">
+                            <div class="diary-meta-top">
+                                <div class="meta-pills">
+                                    <span class="date-chip">${formatDateBR(fic.dateRead)}</span>
+                                    <span style="color: var(--wattpad); font-weight: 700;">${escapeHTML(fic.fandom || 'Wattpad')}</span>
+                                    <span class="visibility-pill ${fic.isPublic === false ? 'vis-private' : 'vis-public'}">${fic.isPublic === false ? 'Privada' : 'Pública'}</span>
+                                </div>
+                                <button type="button" onclick="openFicModal('${fic.id}')" class="btn-small">Editar</button>
+                            </div>
+
+                            <h3 style="font-size: 1.08rem; font-weight: 800; color: var(--text-strong); margin-top: 8px; cursor: pointer;" onclick="openDetailModal('${fic.id}')">
+                                ${escapeHTML(fic.title)} <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">por ${escapeHTML(fic.author)}</span>
+                            </h3>
+
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px;">
+                                ${renderStarsHTML(fic.rating, 16)}
+                                ${fic.favorite ? `<span style="font-size: 0.78rem; font-weight: 800; color: var(--wattpad);">♥ Favorita</span>` : ''}
+                            </div>
+
+                            ${fic.review ? `
+                                <div style="margin-top: 10px;">
+                                    ${fic.hasSpoilers ? `
+                                        <div id="${spoilerId}-banner" class="spoiler-banner">
+                                            <span>⚠️ Esta resenha contém spoilers!</span>
+                                            <button type="button" onclick="revealSpoiler('${spoilerId}')" style="text-decoration: underline; font-weight: 800;">Mostrar resenha</button>
+                                        </div>
+                                    ` : ''}
+                                    <p id="${spoilerId}" class="${fic.hasSpoilers ? 'spoiler-blur' : ''}" style="font-size: 0.88rem; white-space: pre-line;">${escapeHTML(fic.review)}</p>
+                                </div>
+                            ` : `<p style="font-size: 0.8rem; font-style: italic; color: var(--text-muted); margin-top: 8px;">Nenhuma resenha escrita para esta leitura.</p>`}
+
+                            ${(fic.tags && fic.tags.length > 0) ? `
+                                <div class="tags-row">
+                                    ${fic.tags.map(t => `<span class="tag-chip">#${escapeHTML(t)}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function revealSpoiler(id) {
+            document.getElementById(id)?.classList.add('spoiler-revealed');
+            document.getElementById(`${id}-banner`)?.classList.add('hidden');
+        }
+
+        // ==================== 3. LISTAS ====================
+        function renderLists() {
+            const grid = document.getElementById('lists-grid');
+            const lists = appState.lists || [];
+
+            if (lists.length === 0) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">Você ainda não criou nenhuma lista. Clique em "+ Criar Nova Lista" acima!</div>`;
+                return;
+            }
+
+            grid.innerHTML = lists.map(list => {
+                const listFics = (list.ficIds || []).map(id => appState.fics.find(f => f.id === id)).filter(Boolean);
+                return `
+                    <div class="list-card">
+                        <div>
+                            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+                                <div>
+                                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                                        <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-strong);">${escapeHTML(list.name)}</h3>
+                                        <span class="visibility-pill ${list.isPublic === false ? 'vis-private' : 'vis-public'}">${list.isPublic === false ? 'Privada' : 'Pública'}</span>
+                                    </div>
+                                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--blue); margin-top: 2px;">${listFics.length} ${listFics.length === 1 ? 'fanfic' : 'fanfics'}</div>
+                                </div>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" onclick="openListModal('${list.id}')" class="btn-small">Editar</button>
+                                    <button type="button" onclick="deleteList('${list.id}')" class="btn-small" style="color: var(--danger);">Excluir</button>
+                                </div>
+                            </div>
+                            ${list.description ? `<p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 8px;">${escapeHTML(list.description)}</p>` : ''}
+                        </div>
+
+                        <div class="list-covers-preview">
+                            ${listFics.slice(0, 4).map(f => `
+                                <div class="book-aspect" style="cursor: pointer;" onclick="openDetailModal('${f.id}')" title="${escapeHTML(f.title)}">
+                                    ${renderPosterHTML(f)}
+                                </div>
+                            `).join('')}
+                            ${listFics.length === 0 ? `<div style="grid-column: 1 / -1; text-align: center; padding: 18px; font-size: 0.78rem; color: var(--text-muted); background: var(--bg-input); border-radius: 10px;">Nenhuma fanfic nesta lista ainda.</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== 4. ESTATÍSTICAS ====================
+        function renderStats() {
+            const fics = appState.fics || [];
+            const readFics = fics.filter(f => f.status === 'Lida');
+            const ratedFics = fics.filter(f => (parseFloat(f.rating) || 0) > 0);
+            const avg = ratedFics.length > 0
+                ? (ratedFics.reduce((acc, f) => acc + parseFloat(f.rating), 0) / ratedFics.length).toFixed(1)
+                : '0.0';
+
+            document.getElementById('stat-total-read').textContent = readFics.length;
+            document.getElementById('stat-avg-rating').textContent = avg;
+            document.getElementById('stat-favorites').textContent = fics.filter(f => f.favorite).length;
+            document.getElementById('stat-reviews').textContent = fics.filter(f => f.review && f.review.trim() !== '').length;
+
+            const statuses = ['Lida', 'Lendo', 'Quero Ler', 'Abandonada'];
+            const total = Math.max(1, fics.length);
+            document.getElementById('status-bars').innerHTML = statuses.map(st => {
+                const count = fics.filter(f => f.status === st).length;
+                const pct = Math.round((count / total) * 100);
+                return `
+                    <div class="bar-row">
+                        <span style="width: 85px; font-weight: 700; color: var(--text-strong);">${st}</span>
+                        <div class="bar-track"><div class="bar-fill" style="width: ${pct}%;"></div></div>
+                        <span style="width: 24px; text-align: right; color: var(--text-muted); font-weight: 700;">${count}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const tagMap = {};
+            fics.forEach(f => (f.tags || []).forEach(t => {
+                tagMap[t] = (tagMap[t] || 0) + 1;
+            }));
+            const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            document.getElementById('top-tags').innerHTML = sortedTags.length > 0
+                ? sortedTags.map(([tag, cnt]) => `<span class="tag-chip" style="color: var(--blue); font-weight: 700;">#${escapeHTML(tag)} (${cnt})</span>`).join('')
+                : `<p style="font-size: 0.8rem; color: var(--text-muted);">Adicione tags nas suas fics para vê-las aqui.</p>`;
+        }
+
+        // ==================== 5. USUÁRIO / PERFIL PÚBLICO ====================
+        function getAllPublicProfilesMap() {
+            const map = { ...SAMPLE_PUBLIC_PROFILES };
+            const myHandle = normalizeHandle(appState.profile.handle);
+            map[myHandle] = {
+                handle: myHandle,
+                displayName: appState.profile.displayName || 'Meu Perfil',
+                bio: appState.profile.bio || '',
+                avatarUrl: appState.profile.avatarUrl || '',
+                bannerUrl: appState.profile.bannerUrl || '',
+                wattpadUrl: appState.profile.wattpadUrl || 'https://www.wattpad.com',
+                spotifyUrl: appState.profile.spotifyUrl || 'https://open.spotify.com',
+                favoriteTropes: appState.profile.favoriteTropes || [],
+                isCurrentUser: true,
+                fics: appState.fics.filter(f => f.isPublic !== false),
+                lists: appState.lists.filter(l => l.isPublic !== false)
+            };
+            return map;
+        }
+
+        function setProfileViewMode(mode) {
+            profileViewMode = mode;
+            const mineBtn = document.getElementById('btn-view-mine');
+            const pubBtn = document.getElementById('btn-view-public');
+            const minePanel = document.getElementById('profile-mine-panel');
+            const pubPanel = document.getElementById('profile-public-panel');
+
+            if (mode === 'mine') {
+                mineBtn.className = 'btn-mode active-wattpad';
+                pubBtn.className = 'btn-mode';
+                minePanel.classList.remove('hidden');
+                pubPanel.classList.add('hidden');
+            } else {
+                pubBtn.className = 'btn-mode active-blue';
+                mineBtn.className = 'btn-mode';
+                minePanel.classList.add('hidden');
+                pubPanel.classList.remove('hidden');
+            }
+            renderProfileTab();
+        }
+
+        function previewMyPublicProfile() {
+            selectedPublicHandle = normalizeHandle(appState.profile.handle);
+            setProfileViewMode('public');
+        }
+
+        function lookupPublicProfile() {
+            const input = document.getElementById('lookup-handle-input');
+            const target = normalizeHandle(input.value || '');
+            if (!target || target === '@') {
+                showToast('Digite um @usuário para buscar.');
+                return;
+            }
+            const map = getAllPublicProfilesMap();
+            if (!map[target] && !SAMPLE_PUBLIC_PROFILES[target]) {
+                SAMPLE_PUBLIC_PROFILES[target] = {
+                    handle: target,
+                    displayName: target.replace(/^@/, '').split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' '),
+                    bio: `Perfil público de ${target} no Ficboxd — resenhas e listas do Wattpad.`,
+                    avatarUrl: '',
+                    bannerUrl: '',
+                    wattpadUrl: 'https://www.wattpad.com',
+                    spotifyUrl: 'https://open.spotify.com',
+                    favoriteTropes: ['Slow Burn', 'Romance'],
+                    fics: appState.fics.filter(f => f.isPublic !== false).slice(0, 2),
+                    lists: appState.lists.filter(l => l.isPublic !== false).slice(0, 1)
+                };
+            }
+            selectedPublicHandle = target;
+            setProfileViewMode('public');
+            showToast(`Visualizando perfil ${selectedPublicHandle}`);
+        }
+
+        function selectSuggestedProfile(handle) {
+            selectedPublicHandle = normalizeHandle(handle);
+            document.getElementById('lookup-handle-input').value = selectedPublicHandle;
+            setProfileViewMode('public');
+        }
+
+        function saveProfileFromForm(e) {
+            e.preventDefault();
+            const handle = normalizeHandle(document.getElementById('prof-handle').value);
+            const displayName = document.getElementById('prof-name').value.trim();
+            const bio = document.getElementById('prof-bio').value.trim();
+            const avatarUrlInput = document.getElementById('prof-avatar-url').value.trim();
+            const bannerUrlInput = document.getElementById('prof-banner-url').value.trim();
+            const wattpadUrl = sanitizeExternalUrl(document.getElementById('prof-wattpad-url').value, 'https://www.wattpad.com');
+            const spotifyUrl = sanitizeExternalUrl(document.getElementById('prof-spotify-url').value, 'https://open.spotify.com');
+            const tropes = document.getElementById('prof-favs').value.split(',').map(t => t.trim()).filter(Boolean);
+
+            appState.profile = {
+                handle: handle || '@giovanna.reads',
+                displayName: displayName || 'Leitora Ficboxd',
+                bio,
+                avatarUrl: avatarUrlInput || appState.profile.avatarUrl || '',
+                bannerUrl: bannerUrlInput || appState.profile.bannerUrl || '',
+                wattpadUrl,
+                spotifyUrl,
+                favoriteTropes: tropes
+            };
+
+            renderAll();
+            saveState(true);
+        }
+
+        function copyShareHandleCard() {
+            const prof = appState.profile;
+            const shareText = `${prof.displayName} (${prof.handle}) no Ficboxd — confira minhas resenhas e listas de fanfics do Wattpad!`;
+            const ta = document.createElement('textarea');
+            ta.value = shareText;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast(`Copiado: ${prof.handle}`);
+            } catch (e) {
+                showToast(`Seu @usuário: ${prof.handle}`);
+            }
+            document.body.removeChild(ta);
+        }
+
+        function renderProfileTab() {
+            const prof = appState.profile;
+            const initial = (prof.displayName || prof.handle || 'G').replace(/^@/, '').charAt(0).toUpperCase() || 'G';
+
+            const wpUrl = sanitizeExternalUrl(prof.wattpadUrl, 'https://www.wattpad.com');
+            const spUrl = sanitizeExternalUrl(prof.spotifyUrl, 'https://open.spotify.com');
+
+            document.getElementById('btn-shortcut-wattpad').href = wpUrl;
+            document.getElementById('btn-shortcut-spotify').href = spUrl;
+            document.getElementById('card-link-wattpad').href = wpUrl;
+            document.getElementById('card-link-spotify').href = spUrl;
+            document.getElementById('card-link-wattpad-text').textContent = wpUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+
+            const bannerImg = document.getElementById('my-profile-banner-img');
+            if (prof.bannerUrl) {
+                bannerImg.src = prof.bannerUrl;
+                bannerImg.classList.remove('hidden');
+            } else {
+                bannerImg.src = '';
+                bannerImg.classList.add('hidden');
+            }
+
+            document.getElementById('my-profile-avatar').innerHTML = renderAvatarInner(prof.avatarUrl, initial);
+            document.getElementById('my-profile-display-name').textContent = prof.displayName;
+            document.getElementById('my-profile-handle-pill').textContent = prof.handle;
+            document.getElementById('my-profile-bio-preview').textContent = prof.bio || 'Adicione uma bio para contar sobre suas leituras favoritas.';
+            document.getElementById('my-profile-favs-preview').innerHTML = (prof.favoriteTropes || [])
+                .map(t => `<span class="tag-chip" style="color: var(--green); font-weight: 700;">#${escapeHTML(t)}</span>`)
+                .join('');
+
+            const fillIfNotFocused = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && document.activeElement !== el) el.value = val;
+            };
+            fillIfNotFocused('prof-handle', prof.handle);
+            fillIfNotFocused('prof-name', prof.displayName);
+            fillIfNotFocused('prof-bio', prof.bio || '');
+            fillIfNotFocused('prof-favs', (prof.favoriteTropes || []).join(', '));
+            fillIfNotFocused('prof-avatar-url', (prof.avatarUrl && !prof.avatarUrl.startsWith('data:')) ? prof.avatarUrl : '');
+            fillIfNotFocused('prof-banner-url', (prof.bannerUrl && !prof.bannerUrl.startsWith('data:')) ? prof.bannerUrl : '');
+            fillIfNotFocused('prof-wattpad-url', wpUrl);
+            fillIfNotFocused('prof-spotify-url', spUrl);
+
+            // Perfis sugeridos
+            const profilesMap = getAllPublicProfilesMap();
+            document.getElementById('suggested-profiles-list').innerHTML = Object.values(profilesMap).map(p => {
+                const isSel = p.handle === selectedPublicHandle;
+                const pInit = (p.displayName || p.handle).replace(/^@/, '').charAt(0).toUpperCase();
+                return `
+                    <button type="button" onclick="selectSuggestedProfile('${escapeHTML(p.handle)}')" class="suggested-item ${isSel ? 'selected' : ''}">
+                        <div class="avatar-xs" style="width: 36px; height: 36px; font-size: 0.9rem;">${renderAvatarInner(p.avatarUrl, pInit)}</div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${escapeHTML(p.displayName)} ${p.isCurrentUser ? '<span style="color: var(--green);">(Você)</span>' : ''}
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--blue); font-family: monospace;">${escapeHTML(p.handle)}</div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            renderPublicProfileContent();
+        }
+
+        function renderPublicProfileContent() {
+            const profilesMap = getAllPublicProfilesMap();
+            const target = profilesMap[selectedPublicHandle] || Object.values(profilesMap)[0];
+            if (!target) return;
+
+            const pubInit = (target.displayName || target.handle).replace(/^@/, '').charAt(0).toUpperCase();
+            const publicFics = (target.fics || []).filter(f => f.isPublic !== false);
+            const publicLists = (target.lists || []).filter(l => l.isPublic !== false);
+
+            document.getElementById('public-profile-header').innerHTML = `
+                <div class="twitter-banner" style="height: 150px;">
+                    ${target.bannerUrl ? `<img src="${escapeHTML(target.bannerUrl)}" alt="Banner">` : ''}
+                    <div class="banner-overlay-grad"></div>
+                    <span class="banner-change-btn" style="cursor: default;">Modo Leitura Pública</span>
+                </div>
+                <div class="twitter-body">
+                    <div class="twitter-avatar-row">
+                        <div class="twitter-avatar-wrap" style="width: 88px; height: 88px;">
+                            <div class="twitter-avatar">${renderAvatarInner(target.avatarUrl, pubInit)}</div>
+                        </div>
+                        <div class="date-chip">${publicFics.length} ${publicFics.length === 1 ? 'resenha pública' : 'resenhas públicas'}</div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-strong);">${escapeHTML(target.displayName)}</h2>
+                        <span class="handle-pill-mini" style="color: var(--blue); background: rgba(64, 188, 244, 0.14);">${escapeHTML(target.handle)}</span>
+                    </div>
+                    <p style="font-size: 0.85rem; margin-top: 6px;">${escapeHTML(target.bio || '')}</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
+                        ${(target.favoriteTropes || []).map(t => `<span class="tag-chip">#${escapeHTML(t)}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+
+            const q = (document.getElementById('public-filter-query')?.value || '').toLowerCase().trim();
+            const minRating = parseFloat(document.getElementById('public-filter-rating')?.value || '0') || 0;
+
+            const filteredFics = publicFics.filter(f => {
+                const matchRating = (parseFloat(f.rating) || 0) >= minRating;
+                const hay = `${f.title} ${f.author} ${f.fandom} ${f.review || ''} ${(f.tags || []).join(' ')}`.toLowerCase();
+                return matchRating && (!q || hay.includes(q));
+            });
+
+            const reviewsEl = document.getElementById('public-reviews-list');
+            if (filteredFics.length === 0) {
+                reviewsEl.innerHTML = `<div class="empty-state">Nenhuma resenha pública corresponde aos filtros selecionados.</div>`;
+            } else {
+                reviewsEl.innerHTML = filteredFics.map(fic => {
+                    const reviewKey = `${target.handle}::${fic.id}`;
+                    const isLiked = (appState.likedReviewIds || []).includes(reviewKey);
+                    const totalLikes = (fic.likes || 0) + (isLiked ? 1 : 0);
+                    const spoilerId = `pub-sp-${fic.id}`;
+                    return `
+                        <article class="diary-card">
+                            <div class="diary-poster-wrap" style="width: 90px; cursor: default;">
+                                <div class="book-aspect">${renderPosterHTML(fic)}</div>
+                            </div>
+                            <div class="diary-body">
+                                <div class="diary-meta-top">
+                                    <span style="font-size: 0.76rem; color: var(--text-muted);">${escapeHTML(fic.fandom || 'Wattpad')} • <strong style="color: var(--text-strong);">${escapeHTML(fic.author)}</strong></span>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">${formatDateBR(fic.dateRead)}</span>
+                                </div>
+                                <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-strong); margin-top: 4px;">${escapeHTML(fic.title)}</h4>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                                    ${renderStarsHTML(fic.rating, 15)}
+                                    ${fic.favorite ? `<span style="font-size: 0.76rem; font-weight: 800; color: var(--wattpad);">♥ Favorita</span>` : ''}
+                                </div>
+                                ${fic.review ? `
+                                    <div style="margin-top: 8px;">
+                                        ${fic.hasSpoilers ? `
+                                            <div id="${spoilerId}-banner" class="spoiler-banner">
+                                                <span>⚠️ Contém spoilers</span>
+                                                <button type="button" onclick="revealSpoiler('${spoilerId}')" style="text-decoration: underline; font-weight: 800;">Revelar</button>
+                                            </div>
+                                        ` : ''}
+                                        <p id="${spoilerId}" class="${fic.hasSpoilers ? 'spoiler-blur' : ''}" style="font-size: 0.86rem; white-space: pre-line;">${escapeHTML(fic.review)}</p>
+                                    </div>
+                                ` : ''}
+                                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        ${(fic.tags || []).map(t => `<span class="tag-chip">#${escapeHTML(t)}</span>`).join('')}
+                                    </div>
+                                    <button type="button" onclick="togglePublicReviewLike('${escapeHTML(reviewKey)}')" class="btn-small" style="${isLiked ? 'border-color: var(--wattpad); color: var(--wattpad);' : ''}">
+                                        👍 Curtir (${totalLikes})
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            }
+
+            const pubListsEl = document.getElementById('public-lists-grid');
+            if (publicLists.length === 0) {
+                pubListsEl.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">Nenhuma lista pública compartilhada por este usuário.</div>`;
+            } else {
+                pubListsEl.innerHTML = publicLists.map(lst => {
+                    const matched = (lst.ficIds || []).map(id => publicFics.find(f => f.id === id) || appState.fics.find(f => f.id === id)).filter(Boolean);
+                    return `
+                        <div class="list-card">
+                            <div style="display: flex; justify-content: space-between;">
+                                <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-strong);">${escapeHTML(lst.name)}</h4>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--blue);">${matched.length} fics</span>
+                            </div>
+                            ${lst.description ? `<p style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(lst.description)}</p>` : ''}
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                ${matched.map(m => `<span class="tag-chip" style="color: var(--text-strong);">${escapeHTML(m.title)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function togglePublicReviewLike(reviewKey) {
+            const idx = appState.likedReviewIds.indexOf(reviewKey);
+            if (idx === -1) appState.likedReviewIds.push(reviewKey);
+            else appState.likedReviewIds.splice(idx, 1);
+            renderPublicProfileContent();
+            saveState(false);
+        }
+
+        // ==================== MODAL DE FANFIC ====================
+        function openFicModal(ficId = null) {
+            const modal = document.getElementById('fic-modal');
+            const titleEl = document.getElementById('fic-modal-title');
+            const deleteBtn = document.getElementById('delete-fic-btn');
+            document.getElementById('fic-form').reset();
+
+            if (ficId) {
+                const fic = appState.fics.find(f => f.id === ficId);
+                if (!fic) return;
+                titleEl.textContent = 'Editar Fanfic & Resenha';
+                document.getElementById('fic-id').value = fic.id;
+                document.getElementById('fic-title').value = fic.title || '';
+                document.getElementById('fic-author').value = fic.author || '';
+                document.getElementById('fic-fandom').value = fic.fandom || '';
+                document.getElementById('fic-status').value = fic.status || 'Lida';
+                document.getElementById('fic-cover').value = fic.coverUrl || '';
+                document.getElementById('fic-link').value = fic.link || '';
+                document.getElementById('fic-date').value = fic.dateRead || '';
+                document.getElementById('fic-tags').value = (fic.tags || []).join(', ');
+                document.getElementById('fic-public').checked = fic.isPublic !== false;
+                document.getElementById('fic-spoiler').checked = !!fic.hasSpoilers;
+                document.getElementById('fic-review').value = fic.review || '';
+                setFormRating(fic.rating || 0);
+                setFormFavorite(!!fic.favorite);
+                deleteBtn.classList.remove('hidden');
+            } else {
+                titleEl.textContent = 'Registrar Nova Fanfic';
+                document.getElementById('fic-id').value = '';
+                document.getElementById('fic-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('fic-public').checked = true;
+                setFormRating(0);
+                setFormFavorite(false);
+                deleteBtn.classList.add('hidden');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeFicModal() {
+            document.getElementById('fic-modal').classList.add('hidden');
+        }
+
+        function setFormRating(val) {
+            const num = parseFloat(val) || 0;
+            document.getElementById('fic-rating').value = num;
+            document.getElementById('rating-display-text').textContent = num.toFixed(1);
+
+            const picker = document.getElementById('star-picker');
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                const isFull = num >= i;
+                const isHalf = !isFull && num >= i - 0.5;
+                html += `
+                    <button type="button" onclick="handleStarClick(${i})" class="star-btn" title="${i} estrelas">
+                        <svg width="26" height="26" viewBox="0 0 24 24">
+                            <defs><linearGradient id="pk-h-${i}"><stop offset="50%" stop-color="#00E054"/><stop offset="50%" stop-color="#475569"/></linearGradient></defs>
+                            <path fill="${isFull ? '#00E054' : (isHalf ? `url(#pk-h-${i})` : '#475569')}" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                `;
+            }
+            picker.innerHTML = html;
+        }
+
+        function handleStarClick(starIndex) {
+            const current = parseFloat(document.getElementById('fic-rating').value) || 0;
+            setFormRating(current === starIndex ? starIndex - 0.5 : starIndex);
+        }
+
+        function toggleFormFavorite() {
+            const current = document.getElementById('fic-favorite').value === 'true';
+            setFormFavorite(!current);
+        }
+
+        function setFormFavorite(isFav) {
+            document.getElementById('fic-favorite').value = isFav ? 'true' : 'false';
+            document.getElementById('fav-toggle-btn').classList.toggle('active', isFav);
+        }
+
+        function saveFicFromForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('fic-id').value;
+            const tags = document.getElementById('fic-tags').value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+
+            const ficObj = {
+                id: id || 'fic-' + Date.now(),
+                title: document.getElementById('fic-title').value.trim(),
+                author: document.getElementById('fic-author').value.trim(),
+                fandom: document.getElementById('fic-fandom').value.trim(),
+                status: document.getElementById('fic-status').value,
+                rating: parseFloat(document.getElementById('fic-rating').value) || 0,
+                favorite: document.getElementById('fic-favorite').value === 'true',
+                dateRead: document.getElementById('fic-date').value,
+                coverUrl: document.getElementById('fic-cover').value.trim(),
+                link: document.getElementById('fic-link').value.trim(),
+                tags,
+                isPublic: document.getElementById('fic-public').checked,
+                hasSpoilers: document.getElementById('fic-spoiler').checked,
+                review: document.getElementById('fic-review').value.trim()
+            };
+
+            if (id) {
+                const idx = appState.fics.findIndex(f => f.id === id);
+                if (idx !== -1) appState.fics[idx] = { ...appState.fics[idx], ...ficObj };
+            } else {
+                appState.fics.unshift(ficObj);
+            }
+
+            closeFicModal();
+            renderAll();
+            saveState(true);
+        }
+
+        function deleteCurrentFic() {
+            const id = document.getElementById('fic-id').value;
+            if (!id) return;
+            appState.fics = appState.fics.filter(f => f.id !== id);
+            appState.lists.forEach(l => {
+                l.ficIds = (l.ficIds || []).filter(fid => fid !== id);
+            });
+            closeFicModal();
+            renderAll();
+            saveState(true);
+        }
+
+        // ==================== MODAL DE DETALHES ====================
+        function openDetailModal(ficId) {
+            const fic = appState.fics.find(f => f.id === ficId);
+            if (!fic) return;
+            const modal = document.getElementById('detail-modal');
+            document.getElementById('detail-modal-content').innerHTML = `
+                <div class="modal-header">
+                    <span style="font-size: 0.78rem; font-weight: 800; color: var(--wattpad); text-transform: uppercase;">${escapeHTML(fic.fandom || 'Wattpad')} • ${escapeHTML(fic.status)}</span>
+                    <button type="button" onclick="closeDetailModal()" class="icon-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+                        <div style="width: 140px; flex-shrink: 0;">
+                            <div class="book-aspect">${renderPosterHTML(fic)}</div>
+                            ${fic.link ? `<a href="${escapeHTML(fic.link)}" target="_blank" rel="noopener noreferrer" class="btn-ext-wattpad" style="width: 100%; justify-content: center; margin-top: 10px;">Ler no Wattpad ↗</a>` : ''}
+                        </div>
+                        <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 12px;">
+                            <div>
+                                <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-strong);">${escapeHTML(fic.title)}</h2>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Escrita por <strong style="color: var(--text-strong);">${escapeHTML(fic.author)}</strong> • ${formatDateBR(fic.dateRead)}</p>
+                            </div>
+                            <div class="rating-box">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    ${renderStarsHTML(fic.rating, 18)}
+                                    <strong style="color: var(--text-strong);">${(parseFloat(fic.rating) || 0).toFixed(1)}</strong>
+                                </div>
+                                ${fic.favorite ? `<span style="color: var(--wattpad); font-weight: 800; font-size: 0.82rem;">♥ Favorita</span>` : ''}
+                            </div>
+                            <div>
+                                <span class="field-label">Sua Resenha</span>
+                                <p style="font-size: 0.88rem; white-space: pre-line; background: var(--bg-input); padding: 12px; border-radius: 10px; border: 1px solid var(--border-subtle);">
+                                    ${escapeHTML(fic.review || 'Nenhuma resenha escrita ainda.')}
+                                </p>
+                            </div>
+                            ${(fic.tags && fic.tags.length > 0) ? `
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    ${fic.tags.map(t => `<span class="tag-chip" style="color: var(--blue);">#${escapeHTML(t)}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button type="button" onclick="closeDetailModal(); openFicModal('${fic.id}')" class="btn-small">Editar Registro</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // ==================== MODAL DE LISTAS ====================
+        function openListModal(listId = null) {
+            const modal = document.getElementById('list-modal');
+            const titleEl = document.getElementById('list-modal-title');
+            document.getElementById('list-form').reset();
+
+            let selectedIds = [];
+            if (listId) {
+                const list = appState.lists.find(l => l.id === listId);
+                if (!list) return;
+                titleEl.textContent = 'Editar Lista';
+                document.getElementById('list-id').value = list.id;
+                document.getElementById('list-name').value = list.name;
+                document.getElementById('list-desc').value = list.description || '';
+                document.getElementById('list-public').checked = list.isPublic !== false;
+                selectedIds = list.ficIds || [];
+            } else {
+                titleEl.textContent = 'Criar Nova Lista';
+                document.getElementById('list-id').value = '';
+                document.getElementById('list-public').checked = true;
+            }
+
+            const checklist = document.getElementById('list-fics-checklist');
+            if (appState.fics.length === 0) {
+                checklist.innerHTML = `<span style="font-size: 0.78rem; color: var(--text-muted);">Cadastre fanfics primeiro para adicioná-las aqui.</span>`;
+            } else {
+                checklist.innerHTML = appState.fics.map(f => `
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer; padding: 4px 0;">
+                        <input type="checkbox" name="list-fic-item" value="${f.id}" ${selectedIds.includes(f.id) ? 'checked' : ''}>
+                        <strong style="color: var(--text-strong); flex: 1;">${escapeHTML(f.title)}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.74rem;">${escapeHTML(f.author)}</span>
+                    </label>
+                `).join('');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeListModal() {
+            document.getElementById('list-modal').classList.add('hidden');
+        }
+
+        function saveListFromForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('list-id').value;
+            const ficIds = Array.from(document.querySelectorAll('input[name="list-fic-item"]:checked')).map(cb => cb.value);
+
+            const listObj = {
+                id: id || 'list-' + Date.now(),
+                name: document.getElementById('list-name').value.trim(),
+                description: document.getElementById('list-desc').value.trim(),
+                isPublic: document.getElementById('list-public').checked,
+                ficIds
+            };
+
+            if (id) {
+                const idx = appState.lists.findIndex(l => l.id === id);
+                if (idx !== -1) appState.lists[idx] = listObj;
+            } else {
+                appState.lists.unshift(listObj);
+            }
+
+            closeListModal();
+            renderAll();
+            saveState(true);
+        }
+
+        function deleteList(listId) {
+            appState.lists = appState.lists.filter(l => l.id !== listId);
+            renderAll();
+            saveState(true);
+        }
+
+        // ==================== BACKUP JSON ====================
+        function openBackupModal() {
+            document.getElementById('backup-modal').classList.remove('hidden');
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backup-modal').classList.add('hidden');
+        }
+
+        function exportBackupJSON() {
+            const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ficboxd-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Arquivo de backup baixado!');
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.fics)) {
+                        appState = normalizeState(parsed);
+                        applyThemeToDOM(appState.theme);
+                        renderAll();
+                        saveState(true);
+                        closeBackupModal();
+                    } else {
+                        showToast('Arquivo inválido.');
+                    }
+                } catch (err) {
+                    showToast('Erro ao ler o arquivo JSON.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Inicialização
+        loadState();
+        renderAll();
+    </script>
+</body>
+</html>
